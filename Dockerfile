@@ -13,4 +13,18 @@ RUN apk add --no-cache \
 RUN mkdir -p /root/.ssh && \
     chmod 700 /root/.ssh
 
-ENTRYPOINT ["/bin/sh"]
+# Create entrypoint script to setup buildx
+RUN echo '#!/bin/bash' > /entrypoint.sh && \
+    echo 'set -e' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Setup Docker Buildx with multiarch support' >> /entrypoint.sh && \
+    echo 'if [ -S /var/run/docker.sock ]; then' >> /entrypoint.sh && \
+    echo '  docker buildx create --use --name multiarch-builder --driver docker-container 2>/dev/null || docker buildx use multiarch-builder 2>/dev/null || true' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Execute the command passed to the container' >> /entrypoint.sh && \
+    echo 'exec "$@"' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["/bin/sh"]

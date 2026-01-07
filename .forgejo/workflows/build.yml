@@ -15,7 +15,7 @@ env:
 
 jobs:
   auto-tag:
-    runs-on: docker
+    runs-on: buildx
     if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.modified, 'VERSION')
     steps:
       - name: Checkout code
@@ -38,7 +38,7 @@ jobs:
           git push origin "$VERSION"
 
   container-build:
-    runs-on: docker
+    runs-on: buildx
     if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch'
     steps:
       - name: Checkout code

@@ -70,9 +70,11 @@ jobs:
           docker buildx create --use --name multiarch-builder --driver docker-container 2>/dev/null || docker buildx use multiarch-builder
 
       - name: Build and push with Docker
+        env:
+          REGISTRY_TOKEN: ${{ secrets.PUSH_TOKEN }}
         run: |
           REGISTRY=$(echo "${{ github.server_url }}" | sed 's|https://||; s|http://||')
-          docker login -u ${{ github.actor }} -p ${{ secrets.FORGEJO_TOKEN }} $REGISTRY
+          echo "$REGISTRY_TOKEN" | docker login -u ${{ github.repository_owner }} --password-stdin $REGISTRY
           docker buildx build --platform ${{ env.BUILDX_PLATFORMS }} \
             -t $REGISTRY/${{ github.repository }}:latest \
             -t $REGISTRY/${{ github.repository }}:${{ steps.meta.outputs.tag }} \

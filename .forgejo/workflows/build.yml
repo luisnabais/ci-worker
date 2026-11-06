@@ -19,10 +19,14 @@ jobs:
     if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.modified, 'VERSION')
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-          token: ${{ secrets.PUSH_TOKEN }}
+        env:
+          PUSH_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+        run: |
+          SERVER="${{ github.server_url }}"
+          PROTO="${SERVER%%://*}"
+          HOST="${SERVER#*://}"
+          git clone "${PROTO}://${{ github.actor }}:${PUSH_TOKEN}@${HOST}/${{ github.repository }}.git" .
+          git checkout "${{ github.sha }}"
 
       - name: Create and push tag
         run: |

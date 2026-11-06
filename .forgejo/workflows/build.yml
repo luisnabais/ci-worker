@@ -20,7 +20,7 @@ jobs:
     steps:
       - name: Checkout code
         env:
-          PUSH_TOKEN: ${{ secrets.FORGEJO_TOKEN }}
+          PUSH_TOKEN: ${{ secrets.PUSH_TOKEN }}
         run: |
           SERVER="${{ github.server_url }}"
           PROTO="${SERVER%%://*}"
